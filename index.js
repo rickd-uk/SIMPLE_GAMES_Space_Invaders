@@ -1,4 +1,7 @@
+import Board from './Board.js'
 import Player from './Player.js'
+import Invader from './Invader.js'
+
 import Controls from './Controls.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
@@ -8,14 +11,20 @@ import Controls from './Controls.js'
 	canvas.height = innerHeight
 
 	const player = new Player(canvas)
-
+	const invader = new Invader(canvas)
 	const projectiles = []
 	const controls = new Controls(player, projectiles)
+
+	addEventListener('resize', () => {
+		player.redrawOnResize(canvas)
+	})
 
 	function animate() {
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
+		invader.update(c)
+
 		player.update(c)
 		controls.handleKeyPress(canvas, player)
 		projectiles.forEach((projectile, index) => {
@@ -29,8 +38,5 @@ import Controls from './Controls.js'
 		})
 	}
 
-	addEventListener('resize', () => {
-		player.redrawOnResize(canvas)
-	})
 	animate()
 })()

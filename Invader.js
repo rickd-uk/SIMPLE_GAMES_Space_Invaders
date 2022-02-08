@@ -1,4 +1,4 @@
-class Player {
+class Invader {
 	constructor(canvas) {
 		this.position = {
 			x: canvas.width / 2 - this.width / 2,
@@ -9,12 +9,10 @@ class Player {
 			y: 0,
 		}
 
-		this.rotation = 0
-
 		const image = new Image()
-		image.src = './img/spaceship.png'
+		image.src = './img/invader.png'
 		image.onload = () => {
-			const scale = 0.15
+			const scale = 1
 			this.image = image
 			this.width = image.width * scale
 			this.height = image.height * scale
@@ -25,7 +23,7 @@ class Player {
 	setPosition(canvas) {
 		this.position = {
 			x: canvas.width / 2 - this.width / 2,
-			y: canvas.height - this.height - 20,
+			y: canvas.height / 2,
 		}
 	}
 
@@ -36,20 +34,16 @@ class Player {
 	}
 
 	draw(c) {
-		c.save()
-		c.translate(this.position.x + this.width / 2, this.position.y + this.height / 2)
-		c.rotate(this.rotation)
-		c.translate(-this.position.x - this.width / 2, -this.position.y - this.height / 2)
 		c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
-		c.restore()
 	}
 
 	update(c) {
 		if (this.image) {
 			this.draw(c)
 			this.position.x += this.velocity.x
+			this.position.y += this.velocity.y
 		}
 	}
 }
 
-export default Player
+export default Invader
