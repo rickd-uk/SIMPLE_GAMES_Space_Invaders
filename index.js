@@ -25,7 +25,28 @@ import Controls from './js/Controls.js'
 	let frames = 0
 	let randomInterval = Math.floor(Math.random() * 500 + 500)
 
-	function createParticles({ object, color = '#BAA0DE' }) {
+	function createBGStars() {
+		for (let i = 0; i < 100; i++) {
+			particles.push(
+				new Particle({
+					position: {
+						x: Math.random() * canvas.width,
+						y: Math.random() * canvas.height,
+					},
+					velocity: {
+						x: 0,
+						y: 0.2,
+					},
+					radius: 1,
+					color: 'white',
+				}),
+			)
+		}
+	}
+
+	createBGStars()
+
+	function createParticles({ object, fades, color = '#BAA0DE' }) {
 		for (let i = 0; i < 15; i++) {
 			particles.push(
 				new Particle({
@@ -39,6 +60,7 @@ import Controls from './js/Controls.js'
 					},
 					radius: Math.random() * 3,
 					color,
+					fades,
 				}),
 			)
 		}
@@ -51,8 +73,12 @@ import Controls from './js/Controls.js'
 
 		player.update(c)
 
-		// remove particles
 		particles.forEach((particle, idx) => {
+			if (particle.position.y - particle.radius >= canvas.height) {
+				particle.position.x = Math.random() * canvas.width
+				particle.position.y = -particle.radius
+			}
+			// remove particles
 			if (particle.opacity <= 0) {
 				setTimeout(() => {
 					particles.splice(idx, 1)
@@ -80,7 +106,7 @@ import Controls from './js/Controls.js'
 					invaderProjectiles.splice(index, 1)
 				}, 0)
 				// Show player ship explosion
-				createParticles({ object: player, color: 'white' })
+				createParticles({ object: player, color: 'white', fades: true })
 			}
 		})
 
@@ -130,6 +156,7 @@ import Controls from './js/Controls.js'
 								// set off explosion for invader hit
 								createParticles({
 									object: invader,
+									fades: true,
 								})
 
 								grid.invaders.splice(iIdx, 1)
