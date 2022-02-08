@@ -1,9 +1,9 @@
-import Board from './Board.js'
-import Player from './Player.js'
-import Invader from './Invader.js'
-import Grid from './Grid.js'
+import Board from './js/Board.js'
+import Player from './js/Player.js'
+import Invader from './js/Invader.js'
+import Grid from './js/Grid.js'
 
-import Controls from './Controls.js'
+import Controls from './js/Controls.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
 	const c = canvas.getContext('2d')
@@ -41,7 +41,7 @@ import Controls from './Controls.js'
 		})
 
 		// Updating enemy grids
-		grids.forEach((grid) => {
+		grids.forEach((grid, gridIdx) => {
 			grid.update(canvas)
 			grid.invaders.forEach((invader, iIdx) => {
 				invader.update(c, { velocity: grid.velocity })
@@ -57,9 +57,20 @@ import Controls from './Controls.js'
 						setTimeout(() => {
 							const invaderFound = grid.invaders.find((invader2) => invader2 === invader)
 							const projectileFound = projectiles.find((projectile2) => projectile2 === projectile)
+
+							// remove invader and projectile
 							if (invaderFound && projectileFound) {
 								grid.invaders.splice(iIdx, 1)
 								projectiles.splice(pIdx, 1)
+
+								if (grid.invaders.length > 0) {
+									const firstInvader = grid.invaders[0]
+									const lastInvader = grid.invaders[grid.invaders.length - 1]
+									grid.width = lastInvader.position.x - firstInvader.position.x + lastInvader.width
+									grid.position.x = firstInvader.position.x
+								} else {
+									grid.splice(gridIdx, 1)
+								}
 							}
 						}, 0)
 					}
