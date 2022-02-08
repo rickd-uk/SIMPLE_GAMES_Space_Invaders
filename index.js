@@ -1,3 +1,4 @@
+import Controls from './Controls.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
 	const c = canvas.getContext('2d')
@@ -60,65 +61,18 @@
 	}
 
 	const player = new Player()
-	const keys = {
-		a: {
-			pressed: false,
-		},
-		d: {
-			pressed: false,
-		},
-		space: {
-			pressed: false,
-		},
-	}
+	const controls = new Controls()
 
 	function animate() {
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
 		player.update()
-
-		if (keys.a.pressed && player.position.x > 0) {
-			player.velocity.x = -7
-			player.rotation = -0.1
-		} else if (keys.d.pressed && player.position.x + player.width <= canvas.width) {
-			player.velocity.x = 7
-			player.rotation = 0.1
-		} else {
-			player.velocity.x = 0
-			player.rotation = 0
-		}
+		controls.handleKeyPress(canvas, player)
 	}
 
 	addEventListener('resize', () => {
 		player.redrawOnResize()
 	})
 	animate()
-
-	addEventListener('keydown', ({ key }) => {
-		switch (key) {
-			case 'a':
-				keys.a.pressed = true
-				break
-			case 'd':
-				keys.d.pressed = true
-				break
-			case ' ':
-				keys.space.pressed = true
-				break
-		}
-	})
-	addEventListener('keyup', ({ key }) => {
-		switch (key) {
-			case 'a':
-				keys.a.pressed = false
-				break
-			case 'd':
-				keys.d.pressed = false
-				break
-			case ' ':
-				keys.space.pressed = false
-				break
-		}
-	})
 })()
