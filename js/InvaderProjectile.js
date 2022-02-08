@@ -1,20 +1,16 @@
-class Projectile {
+class InvaderProjectile {
 	constructor({ position, velocity }) {
 		this.position = position
 		this.velocity = velocity
-
-		this.radius = 4
+		this.width = 3
+		this.height = 10
 	}
 
 	spawn() {}
 
 	draw(c) {
-		c.fillStyle = 'red'
-		c.beginPath()
-		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-
-		c.fill()
-		c.closePath()
+		c.fillStyle = 'green'
+		c.fillRect(this.position.x, this.position.y, this.width, this.height)
 	}
 	update(c) {
 		this.draw(c)
@@ -23,4 +19,4 @@ class Projectile {
 	}
 }
 
-export default Projectile
+export default InvaderProjectile

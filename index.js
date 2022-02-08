@@ -15,6 +15,7 @@ import Controls from './js/Controls.js'
 	const grids = []
 	const projectiles = []
 	const controls = new Controls(player, projectiles)
+	const invaderProjectiles = []
 
 	addEventListener('resize', () => {
 		player.redrawOnResize(canvas)
@@ -29,6 +30,23 @@ import Controls from './js/Controls.js'
 		c.fillRect(0, 0, canvas.width, canvas.height)
 
 		player.update(c)
+		invaderProjectiles.forEach((invaderProjectile, index) => {
+			// remove invaders that go off screen
+			if (invaderProjectile.position.y + invaderProjectile.height >= canvas.height) {
+				setTimeout(() => {
+					invaderProjectiles.splice(index, 1)
+				}, 0)
+			} else invaderProjectile.update(c)
+
+			// Check for player hit
+			if (
+				invaderProjectile.position.y + invaderProjectile.height >= player.position.y &&
+				invaderProjectile.position.x + invaderProjectile.width >= player.position.x &&
+				invaderProjectile.position.x <= player.position.x + player.width
+			) {
+				console.log('You lose')
+			}
+		})
 		controls.handleKeyPress(canvas, player)
 		projectiles.forEach((projectile, index) => {
 			if (projectile.position.y + projectile.radius <= 0) {
@@ -43,6 +61,13 @@ import Controls from './js/Controls.js'
 		// Updating enemy grids
 		grids.forEach((grid, gridIdx) => {
 			grid.update(canvas)
+
+			// Spawning invader invaderProjectiles
+			let randomInvader = Math.floor(Math.random() * grid.invaders.length)
+			if (frames % 100 === 0 && grid.invaders.length > 0) {
+				grid.invaders[randomInvader].shoot(invaderProjectiles)
+			}
+
 			grid.invaders.forEach((invader, iIdx) => {
 				invader.update(c, { velocity: grid.velocity })
 
@@ -69,7 +94,7 @@ import Controls from './js/Controls.js'
 									grid.width = lastInvader.position.x - firstInvader.position.x + lastInvader.width
 									grid.position.x = firstInvader.position.x
 								} else {
-									grid.splice(gridIdx, 1)
+									grid.invaders.splice(gridIdx, 1)
 								}
 							}
 						}, 0)

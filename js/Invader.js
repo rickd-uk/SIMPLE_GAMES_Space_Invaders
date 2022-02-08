@@ -1,3 +1,5 @@
+import InvaderProjectile from './InvaderProjectile.js'
+
 class Invader {
 	constructor({ position }) {
 		this.velocity = {
@@ -35,6 +37,21 @@ class Invader {
 			this.position.x += velocity.x
 			this.position.y += velocity.y
 		}
+	}
+
+	shoot(invaderProjectiles) {
+		invaderProjectiles.push(
+			new InvaderProjectile({
+				position: {
+					x: this.position.x + this.width / 2,
+					y: this.position.y + this.height,
+				},
+				velocity: {
+					x: 0,
+					y: 5,
+				},
+			}),
+		)
 	}
 }
 
