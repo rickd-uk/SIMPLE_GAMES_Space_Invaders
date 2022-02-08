@@ -29,7 +29,6 @@ class Grid {
 					}),
 				)
 			}
-			console.log(this.invaders)
 		}
 	}
 	update(canvas) {
