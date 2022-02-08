@@ -1,9 +1,5 @@
 class Invader {
-	constructor(canvas) {
-		this.position = {
-			x: canvas.width / 2 - this.width / 2,
-			y: canvas.height - this.height - 20,
-		}
+	constructor({ position }) {
 		this.velocity = {
 			x: 0,
 			y: 0,
@@ -16,14 +12,10 @@ class Invader {
 			this.image = image
 			this.width = image.width * scale
 			this.height = image.height * scale
-			this.setPosition(canvas)
-		}
-	}
-
-	setPosition(canvas) {
-		this.position = {
-			x: canvas.width / 2 - this.width / 2,
-			y: canvas.height / 2,
+			this.position = {
+				x: position.x,
+				y: position.y,
+			}
 		}
 	}
 
@@ -37,11 +29,11 @@ class Invader {
 		c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
 	}
 
-	update(c) {
+	update(c, { velocity }) {
 		if (this.image) {
 			this.draw(c)
-			this.position.x += this.velocity.x
-			this.position.y += this.velocity.y
+			this.position.x += velocity.x
+			this.position.y += velocity.y
 		}
 	}
 }

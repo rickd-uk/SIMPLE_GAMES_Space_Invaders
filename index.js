@@ -1,6 +1,7 @@
 import Board from './Board.js'
 import Player from './Player.js'
 import Invader from './Invader.js'
+import Grid from './Grid.js'
 
 import Controls from './Controls.js'
 ;(() => {
@@ -11,7 +12,7 @@ import Controls from './Controls.js'
 	canvas.height = innerHeight
 
 	const player = new Player(canvas)
-	const invader = new Invader(canvas)
+	const grids = [new Grid(canvas)]
 	const projectiles = []
 	const controls = new Controls(player, projectiles)
 
@@ -23,7 +24,6 @@ import Controls from './Controls.js'
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
-		invader.update(c)
 
 		player.update(c)
 		controls.handleKeyPress(canvas, player)
@@ -35,6 +35,13 @@ import Controls from './Controls.js'
 			} else {
 				projectile.update(c)
 			}
+		})
+
+		grids.forEach((grid) => {
+			grid.update(canvas)
+			grid.invaders.forEach((invader) => {
+				invader.update(c, { velocity: grid.velocity })
+			})
 		})
 	}
 
