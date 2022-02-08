@@ -40,10 +40,30 @@ import Controls from './Controls.js'
 			}
 		})
 
+		// Updating enemy grids
 		grids.forEach((grid) => {
 			grid.update(canvas)
-			grid.invaders.forEach((invader) => {
+			grid.invaders.forEach((invader, iIdx) => {
 				invader.update(c, { velocity: grid.velocity })
+
+				// Collision detection for projectile firing at invader
+				projectiles.forEach((projectile, pIdx) => {
+					if (
+						projectile.position.y - projectile.radius <= invader.position.y + invader.height &&
+						projectile.position.x + projectile.radius >= invader.position.x &&
+						projectile.position.x - projectile.radius <= invader.position.x + invader.width &&
+						projectile.position.y + projectile.radius > invader.position.y
+					) {
+						setTimeout(() => {
+							const invaderFound = grid.invaders.find((invader2) => invader2 === invader)
+							const projectileFound = projectiles.find((projectile2) => projectile2 === projectile)
+							if (invaderFound && projectileFound) {
+								grid.invaders.splice(iIdx, 1)
+								projectiles.splice(pIdx, 1)
+							}
+						}, 0)
+					}
+				})
 			})
 		})
 
