@@ -1,7 +1,7 @@
 import Board from './js/Board.js'
 import Player from './js/Player.js'
-import Invader from './js/Invader.js'
 import Grid from './js/Grid.js'
+import Particle from './js/Particle.js'
 
 import Controls from './js/Controls.js'
 ;(() => {
@@ -16,6 +16,7 @@ import Controls from './js/Controls.js'
 	const projectiles = []
 	const controls = new Controls(player, projectiles)
 	const invaderProjectiles = []
+	const particles = []
 
 	addEventListener('resize', () => {
 		player.redrawOnResize(canvas)
@@ -24,12 +25,43 @@ import Controls from './js/Controls.js'
 	let frames = 0
 	let randomInterval = Math.floor(Math.random() * 500 + 500)
 
+	function createParticles({ object, color = '#BAA0DE' }) {
+		for (let i = 0; i < 15; i++) {
+			particles.push(
+				new Particle({
+					position: {
+						x: object.position.x + object.width / 2,
+						y: object.position.y + object.height / 2,
+					},
+					velocity: {
+						x: (Math.random() - 0.5) * 2,
+						y: (Math.random() - 0.5) * 2,
+					},
+					radius: Math.random() * 3,
+					color,
+				}),
+			)
+		}
+	}
+
 	function animate() {
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
 
 		player.update(c)
+
+		// remove particles
+		particles.forEach((particle, idx) => {
+			if (particle.opacity <= 0) {
+				setTimeout(() => {
+					particles.splice(idx, 1)
+				}, 0)
+			} else {
+				particle.update(c)
+			}
+		})
+
 		invaderProjectiles.forEach((invaderProjectile, index) => {
 			// remove invaders that go off screen
 			if (invaderProjectile.position.y + invaderProjectile.height >= canvas.height) {
@@ -38,22 +70,30 @@ import Controls from './js/Controls.js'
 				}, 0)
 			} else invaderProjectile.update(c)
 
-			// Check for player hit
+			// projectile hits player
 			if (
 				invaderProjectile.position.y + invaderProjectile.height >= player.position.y &&
 				invaderProjectile.position.x + invaderProjectile.width >= player.position.x &&
 				invaderProjectile.position.x <= player.position.x + player.width
 			) {
-				console.log('You lose')
+				setTimeout(() => {
+					invaderProjectiles.splice(index, 1)
+				}, 0)
+				// Show player ship explosion
+				createParticles({ object: player, color: 'white' })
 			}
 		})
+
 		controls.handleKeyPress(canvas, player)
+
+		// remove projectiles
 		projectiles.forEach((projectile, index) => {
 			if (projectile.position.y + projectile.radius <= 0) {
 				setTimeout(() => {
 					projectiles.splice(index, 1)
 				}, 0)
 			} else {
+				// update projectile position
 				projectile.update(c)
 			}
 		})
@@ -68,10 +108,11 @@ import Controls from './js/Controls.js'
 				grid.invaders[randomInvader].shoot(invaderProjectiles)
 			}
 
+			// start grid loop
 			grid.invaders.forEach((invader, iIdx) => {
 				invader.update(c, { velocity: grid.velocity })
 
-				// Collision detection for projectile firing at invader
+				// projectiles hit enemy
 				projectiles.forEach((projectile, pIdx) => {
 					if (
 						projectile.position.y - projectile.radius <= invader.position.y + invader.height &&
@@ -80,14 +121,21 @@ import Controls from './js/Controls.js'
 						projectile.position.y + projectile.radius > invader.position.y
 					) {
 						setTimeout(() => {
+							// check if invader and projectile can be found in array
 							const invaderFound = grid.invaders.find((invader2) => invader2 === invader)
 							const projectileFound = projectiles.find((projectile2) => projectile2 === projectile)
 
 							// remove invader and projectile
 							if (invaderFound && projectileFound) {
+								// set off explosion for invader hit
+								createParticles({
+									object: invader,
+								})
+
 								grid.invaders.splice(iIdx, 1)
 								projectiles.splice(pIdx, 1)
 
+								// update the grid width when invaders are removed, so back and forth movement matches with the grid width
 								if (grid.invaders.length > 0) {
 									const firstInvader = grid.invaders[0]
 									const lastInvader = grid.invaders[grid.invaders.length - 1]
