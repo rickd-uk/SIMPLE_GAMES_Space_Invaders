@@ -12,6 +12,8 @@
 				y: 0,
 			}
 
+			this.rotation = 0
+
 			const image = new Image()
 			image.src = './img/spaceship.png'
 			image.onload = () => {
@@ -37,35 +39,85 @@
 		}
 
 		draw() {
+			c.save()
+			c.translate(this.position.x + this.width / 2, this.position.y + this.height / 2)
+			c.rotate(this.rotation)
+
+			c.translate(-this.position.x - this.width / 2, -this.position.y - this.height / 2)
 			// c.fillStyle = 'red'
 			// c.fillRect(this.position.x, this.position.y, this.width, this.height)
-			if (this.image) c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+			c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+
+			c.restore()
+		}
+
+		update() {
+			if (this.image) {
+				this.draw()
+				this.position.x += this.velocity.x
+			}
 		}
 	}
 
 	const player = new Player()
-	player.draw()
+	const keys = {
+		a: {
+			pressed: false,
+		},
+		d: {
+			pressed: false,
+		},
+		space: {
+			pressed: false,
+		},
+	}
 
 	function animate() {
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
-		player.draw()
-	}
+		player.update()
 
-	animate()
+		if (keys.a.pressed && player.position.x > 0) {
+			player.velocity.x = -7
+			player.rotation = -0.1
+		} else if (keys.d.pressed && player.position.x + player.width <= canvas.width) {
+			player.velocity.x = 7
+			player.rotation = 0.1
+		} else {
+			player.velocity.x = 0
+			player.rotation = 0
+		}
+	}
 
 	addEventListener('resize', () => {
 		player.redrawOnResize()
 	})
+	animate()
 
 	addEventListener('keydown', ({ key }) => {
 		switch (key) {
 			case 'a':
-				console.log('left')
+				keys.a.pressed = true
 				break
 			case 'd':
-				console.log('right')
+				keys.d.pressed = true
+				break
+			case ' ':
+				keys.space.pressed = true
+				break
+		}
+	})
+	addEventListener('keyup', ({ key }) => {
+		switch (key) {
+			case 'a':
+				keys.a.pressed = false
+				break
+			case 'd':
+				keys.d.pressed = false
+				break
+			case ' ':
+				keys.space.pressed = false
 				break
 		}
 	})
