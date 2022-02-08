@@ -1,5 +1,7 @@
+import Projectile from './Projectile.js'
+
 class Controls {
-	constructor() {
+	constructor(player, projectiles) {
 		this.keys = {
 			a: {
 				pressed: false,
@@ -22,6 +24,18 @@ class Controls {
 					break
 				case ' ':
 					this.keys.space.pressed = true
+					projectiles.push(
+						new Projectile({
+							position: {
+								x: player.position.x + player.width / 2,
+								y: player.position.y - 5,
+							},
+							velocity: {
+								x: 0,
+								y: -10,
+							},
+						}),
+					)
 					break
 			}
 		})

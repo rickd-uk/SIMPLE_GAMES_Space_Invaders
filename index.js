@@ -1,6 +1,5 @@
 import Player from './Player.js'
 import Controls from './Controls.js'
-import Projectile from './Projectile.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
 	const c = canvas.getContext('2d')
@@ -9,7 +8,9 @@ import Projectile from './Projectile.js'
 	canvas.height = innerHeight
 
 	const player = new Player(canvas)
-	const controls = new Controls()
+
+	const projectiles = []
+	const controls = new Controls(player, projectiles)
 
 	function animate() {
 		requestAnimationFrame(animate)
@@ -17,6 +18,15 @@ import Projectile from './Projectile.js'
 		c.fillRect(0, 0, canvas.width, canvas.height)
 		player.update(c)
 		controls.handleKeyPress(canvas, player)
+		projectiles.forEach((projectile, index) => {
+			if (projectile.position.y + projectile.radius <= 0) {
+				setTimeout(() => {
+					projectiles.splice(index, 1)
+				}, 0)
+			} else {
+				projectile.update(c)
+			}
+		})
 	}
 
 	addEventListener('resize', () => {
