@@ -2,12 +2,21 @@ body {
   margin: 0;
   height: 100vh;
   background-color: black;
-  overflow: hidden;
+
   /* Hide scrollbars */
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-board {
+  position: relative;
 }
 
 #score-box {
-  position: fixed;
+  position: absolute;
   z-index: 5;
   left: 12px;
   top: 10px;

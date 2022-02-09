@@ -9,8 +9,10 @@ import Controls from './js/Controls.js'
 
 	const scoreEl = document.getElementById('scoreEl')
 
-	canvas.width = innerWidth
-	canvas.height = innerHeight
+	// canvas.width = innerWidth
+	// canvas.height = innerHeight
+	canvas.width = 1024
+	canvas.height = 576
 
 	let game = {
 		over: false,
@@ -25,9 +27,9 @@ import Controls from './js/Controls.js'
 	const invaderProjectiles = []
 	const particles = []
 
-	addEventListener('resize', () => {
-		player.redrawOnResize(canvas)
-	})
+	// addEventListener('resize', () => {
+	// 	player.redrawOnResize(canvas)
+	// })
 
 	let frames = 0
 	let randomInterval = Math.floor(Math.random() * 500 + 500)
