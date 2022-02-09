@@ -11,6 +11,8 @@ class Player {
 
 		this.rotation = 0
 
+		this.opacity = 1
+
 		const image = new Image()
 		image.src = './img/spaceship.png'
 		image.onload = () => {
@@ -37,6 +39,7 @@ class Player {
 
 	draw(c) {
 		c.save()
+		c.globalAlpha = this.opacity
 		c.translate(this.position.x + this.width / 2, this.position.y + this.height / 2)
 		c.rotate(this.rotation)
 		c.translate(-this.position.x - this.width / 2, -this.position.y - this.height / 2)

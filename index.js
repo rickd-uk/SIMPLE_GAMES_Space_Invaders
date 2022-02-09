@@ -2,19 +2,26 @@ import Board from './js/Board.js'
 import Player from './js/Player.js'
 import Grid from './js/Grid.js'
 import Particle from './js/Particle.js'
-
 import Controls from './js/Controls.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
 	const c = canvas.getContext('2d')
 
+	const scoreEl = document.getElementById('scoreEl')
+
 	canvas.width = innerWidth
 	canvas.height = innerHeight
+
+	let game = {
+		over: false,
+		active: true,
+	}
+	let score = 0
 
 	const player = new Player(canvas)
 	const grids = []
 	const projectiles = []
-	const controls = new Controls(player, projectiles)
+	const controls = new Controls(player, projectiles, game)
 	const invaderProjectiles = []
 	const particles = []
 
@@ -67,6 +74,7 @@ import Controls from './js/Controls.js'
 	}
 
 	function animate() {
+		if (!game.active) return
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
@@ -74,11 +82,13 @@ import Controls from './js/Controls.js'
 		player.update(c)
 
 		particles.forEach((particle, idx) => {
+			// reuse background stars - those that reach the bottom of the canvas
+			// are place back in the top with a random x pos
 			if (particle.position.y - particle.radius >= canvas.height) {
 				particle.position.x = Math.random() * canvas.width
 				particle.position.y = -particle.radius
 			}
-			// remove particles
+			// remove particles to cleanup (for performance)
 			if (particle.opacity <= 0) {
 				setTimeout(() => {
 					particles.splice(idx, 1)
@@ -104,13 +114,20 @@ import Controls from './js/Controls.js'
 			) {
 				setTimeout(() => {
 					invaderProjectiles.splice(index, 1)
+					player.opacity = 0
+					game.over = true
 				}, 0)
+
+				setTimeout(() => {
+					game.active = false
+				}, 2000)
+
 				// Show player ship explosion
 				createParticles({ object: player, color: 'white', fades: true })
 			}
 		})
 
-		controls.handleKeyPress(canvas, player)
+		controls.handleKeyPress(canvas, player, game)
 
 		// remove projectiles
 		projectiles.forEach((projectile, index) => {
@@ -151,9 +168,11 @@ import Controls from './js/Controls.js'
 							const invaderFound = grid.invaders.find((invader2) => invader2 === invader)
 							const projectileFound = projectiles.find((projectile2) => projectile2 === projectile)
 
-							// remove invader and projectile
+							// Hit Enemy! -> remove invader and projectile
 							if (invaderFound && projectileFound) {
 								// set off explosion for invader hit
+								score += 8
+								scoreEl.innerText = score
 								createParticles({
 									object: invader,
 									fades: true,

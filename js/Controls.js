@@ -1,7 +1,7 @@
 import Projectile from './Projectile.js'
 
 class Controls {
-	constructor(player, projectiles) {
+	constructor(player, projectiles, game) {
 		this.keys = {
 			a: {
 				pressed: false,
@@ -15,6 +15,8 @@ class Controls {
 		}
 
 		addEventListener('keydown', ({ key }) => {
+			if (game.over) return
+
 			switch (key) {
 				case 'a':
 					this.keys.a.pressed = true

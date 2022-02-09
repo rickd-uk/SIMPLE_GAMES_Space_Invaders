@@ -5,3 +5,15 @@ body {
   overflow: hidden;
   /* Hide scrollbars */
 }
+
+#score-box {
+  position: fixed;
+  z-index: 5;
+  left: 12px;
+  top: 10px;
+  margin: 0;
+  font-family: sans-serif;
+  color: white;
+  font-size: 0.8rem;
+
+}
