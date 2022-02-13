@@ -3,13 +3,13 @@ class Projectile {
 		this.position = position
 		this.velocity = velocity
 
-		this.radius = 4
+		this.radius = 6
 	}
 
 	spawn() {}
 
 	draw(c) {
-		c.fillStyle = 'red'
+		c.fillStyle = ' yellow'
 		c.beginPath()
 		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
 

@@ -1,22 +1,23 @@
 import Invader from './Invader.js'
 
 class Grid {
-	constructor(canvas) {
+	constructor() {
 		this.position = {
 			x: 0,
 			y: 0,
 		}
 		this.velocity = {
-			x: 3,
-			y: 0,
+			x: 6,
+			y: 2,
 		}
 
 		this.invaders = []
 
-		const cols = Math.floor(Math.random() * 10 + 5)
-		const rows = Math.floor(Math.random() * 5 + 2)
+		const cols = Math.floor(Math.random() * 5 + 3) //10 + 5     5 - 14
+		const rows = Math.floor(Math.random() * 3 + 1) // 5 + 2     2 - 6
+		console.log(rows, cols)
 
-		this.width = cols * 30
+		this.width = cols * 40
 
 		for (let i = 0; i < cols; i++) {
 			for (let j = 0; j < rows; j++) {
@@ -39,7 +40,7 @@ class Grid {
 
 		if (this.position.x + this.width >= canvas.width || this.position.x < 0) {
 			this.velocity.x = -this.velocity.x
-			this.velocity.y = 30
+			this.velocity.y = 75
 		}
 	}
 }

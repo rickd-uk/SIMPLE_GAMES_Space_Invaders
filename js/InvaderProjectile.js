@@ -2,8 +2,8 @@ class InvaderProjectile {
 	constructor({ position, velocity }) {
 		this.position = position
 		this.velocity = velocity
-		this.width = 3
-		this.height = 10
+		this.width = 20
+		this.height = 40
 	}
 
 	spawn() {}

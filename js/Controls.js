@@ -1,7 +1,10 @@
 import Projectile from './Projectile.js'
+import { Sound } from './Sound.js'
 
 class Controls {
 	constructor(player, projectiles, game) {
+		this.playerShotSound = new Sound('./sound/playerShot.wav')
+		this.playerShotSound.volume(0.1)
 		this.keys = {
 			a: {
 				pressed: false,
@@ -38,6 +41,9 @@ class Controls {
 							},
 						}),
 					)
+					console.log('play shot sound')
+					this.playerShotSound.getDuration
+					this.playerShotSound.play()
 					break
 			}
 		})
@@ -59,11 +65,11 @@ class Controls {
 
 	handleKeyPress(canvas, player) {
 		if (this.keys.a.pressed && player.position.x > 0) {
-			player.velocity.x = -7
-			player.rotation = -0.1
+			player.velocity.x = -12
+			player.rotation = -0.2
 		} else if (this.keys.d.pressed && player.position.x + player.width <= canvas.width) {
-			player.velocity.x = 7
-			player.rotation = 0.1
+			player.velocity.x = 12
+			player.rotation = 0.2
 		} else {
 			player.velocity.x = 0
 			player.rotation = 0

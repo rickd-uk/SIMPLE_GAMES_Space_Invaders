@@ -3,6 +3,7 @@ import Player from './js/Player.js'
 import Grid from './js/Grid.js'
 import Particle from './js/Particle.js'
 import Controls from './js/Controls.js'
+import { Sound } from './js/Sound.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
 	const c = canvas.getContext('2d')
@@ -20,6 +21,18 @@ import Controls from './js/Controls.js'
 	}
 	let score = 0
 
+	const invaderHitSound = new Sound('./sound/invaderHit.wav')
+	let shipExplosionSound = new Sound('./sound/ship-explosion.wav')
+
+	const startSound = new Sound('./sound/start.wav')
+	startSound.volume(0.4)
+	startSound.play()
+
+	const bgMusic = new Sound('./sound/bgMusic.wav')
+	bgMusic.volume(0.1)
+	bgMusic.loop()
+	bgMusic.play()
+
 	const player = new Player(canvas)
 	const grids = []
 	const projectiles = []
@@ -30,6 +43,10 @@ import Controls from './js/Controls.js'
 	// addEventListener('resize', () => {
 	// 	player.redrawOnResize(canvas)
 	// })
+
+	addEventListener('timeupdate', function () {
+		console.log(currentTime)
+	})
 
 	let frames = 0
 	let randomInterval = Math.floor(Math.random() * 500 + 500)
@@ -126,6 +143,11 @@ import Controls from './js/Controls.js'
 
 				// Show player ship explosion
 				createParticles({ object: player, color: 'white', fades: true })
+
+				shipExplosionSound.volume(0.2)
+				shipExplosionSound.play()
+				shipExplosionSound = null
+				bgMusic.stop()
 			}
 		})
 
@@ -180,6 +202,11 @@ import Controls from './js/Controls.js'
 									fades: true,
 								})
 
+								// explosion sound
+
+								invaderHitSound.volume(0.2)
+								invaderHitSound.play()
+
 								grid.invaders.splice(iIdx, 1)
 								projectiles.splice(pIdx, 1)
 
@@ -203,7 +230,8 @@ import Controls from './js/Controls.js'
 		if (frames % randomInterval === 0) {
 			// Divisible by 1000
 			grids.push(new Grid(canvas))
-			randomInterval = Math.floor(Math.random() * 500 + 500)
+			randomInterval = Math.floor(Math.random() * 150 + 100)
+			console.log(randomInterval)
 			frames = 0
 		}
 
