@@ -8,7 +8,8 @@ class Invader {
 		}
 
 		const image = new Image()
-		image.src = './img/invader.png'
+		image.src = './img/invader.gif'
+
 		image.onload = () => {
 			const scale = 1
 			this.image = image

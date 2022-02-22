@@ -146,7 +146,10 @@ import { Sound } from './js/Sound.js'
 
 				shipExplosionSound.volume(0.2)
 				shipExplosionSound.play()
-				shipExplosionSound = null
+				setTimeout(() => {
+					shipExplosionSound = null
+				}, 2000)
+
 				bgMusic.stop()
 			}
 		})
@@ -197,6 +200,30 @@ import { Sound } from './js/Sound.js'
 								// set off explosion for invader hit
 								score += 8
 								scoreEl.innerText = score
+
+								// dynamic score labels
+								const scoreLabel = document.createElement('label')
+								scoreLabel.innerHTML = 100
+								scoreLabel.style.position = 'absolute'
+								scoreLabel.style.color = 'white'
+								// set score position to invader that was destroyed
+								scoreLabel.style.top = invader.position.y + 'px'
+								scoreLabel.style.left = invader.position.x + 'px'
+								scoreLabel.style.userSelect = 'none'
+
+								// add score
+								const gameBoard = document.querySelector('#game-board')
+								gameBoard.appendChild(scoreLabel)
+
+								gsap.to(scoreLabel, {
+									opacity: 0,
+									y: -30,
+									duration: 0.9,
+									onComplete: () => {
+										gameBoard.removeChild(scoreLabel)
+									},
+								})
+
 								createParticles({
 									object: invader,
 									fades: true,
