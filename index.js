@@ -4,6 +4,7 @@ import Grid from './js/Grid.js'
 import Particle from './js/Particle.js'
 import Controls from './js/Controls.js'
 import { Sound } from './js/Sound.js'
+import Bomb from './js/Bomb.js'
 ;(() => {
 	const canvas = document.querySelector('canvas')
 	const c = canvas.getContext('2d')
@@ -12,8 +13,8 @@ import { Sound } from './js/Sound.js'
 
 	// canvas.width = innerWidth
 	// canvas.height = innerHeight
-	canvas.width = 1024
-	canvas.height = 576
+	const cWidth = (canvas.width = 1024)
+	const cHeight = (canvas.height = 576)
 
 	let game = {
 		over: false,
@@ -26,12 +27,12 @@ import { Sound } from './js/Sound.js'
 
 	const startSound = new Sound('./sound/start.wav')
 	startSound.volume(0.4)
-	startSound.play()
+	// startSound.play()
 
 	const bgMusic = new Sound('./sound/bgMusic.wav')
 	bgMusic.volume(0.1)
-	bgMusic.loop()
-	bgMusic.play()
+	// bgMusic.loop()
+	// bgMusic.play()
 
 	const player = new Player(canvas)
 	const grids = []
@@ -39,6 +40,7 @@ import { Sound } from './js/Sound.js'
 	const controls = new Controls(player, projectiles, game)
 	const invaderProjectiles = []
 	const particles = []
+	const bombs = []
 
 	// addEventListener('resize', () => {
 	// 	player.redrawOnResize(canvas)
@@ -70,7 +72,24 @@ import { Sound } from './js/Sound.js'
 		}
 	}
 
-	createBGStars()
+	function updateBGStars() {
+		particles.forEach((particle, idx) => {
+			// reuse background stars - those that reach the bottom of the canvas
+			// are place back in the top with a random x pos
+			if (particle.position.y - particle.radius >= canvas.height) {
+				particle.position.x = Math.random() * canvas.width
+				particle.position.y = -particle.radius
+			}
+			// remove particles to cleanup (for performance)
+			if (particle.opacity <= 0) {
+				setTimeout(() => {
+					particles.splice(idx, 1)
+				}, 0)
+			} else {
+				particle.update(c)
+			}
+		})
+	}
 
 	function createParticles({ object, fades, color = '#BAA0DE' }) {
 		for (let i = 0; i < 15; i++) {
@@ -92,30 +111,72 @@ import { Sound } from './js/Sound.js'
 		}
 	}
 
+	function createScoreLabel({ score = 100, object }) {
+		const scoreLabel = document.createElement('label')
+		scoreLabel.innerHTML = score
+		scoreLabel.style.position = 'absolute'
+		scoreLabel.style.color = 'white'
+		// set score position to invader that was destroyed
+		scoreLabel.style.top = object.position.y + 'px'
+		scoreLabel.style.left = object.position.x + 'px'
+		scoreLabel.style.userSelect = 'none'
+
+		// add score
+		const gameBoard = document.querySelector('#game-board')
+		gameBoard.appendChild(scoreLabel)
+
+		gsap.to(scoreLabel, {
+			opacity: 0,
+			y: -30,
+			duration: 0.9,
+			onComplete: () => {
+				gameBoard.removeChild(scoreLabel)
+			},
+		})
+	}
+
+	createBGStars()
+
 	function animate() {
 		if (!game.active) return
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
 
+		// Spawn bombc
+		if (frames % 200 === 0 && bombs.length < 3) {
+			bombs.push(
+				new Bomb({
+					canvas: { cWidth, cHeight },
+					velocity: {
+						x: (Math.random() - 0.5) * 6,
+						y: (Math.random() - 0.5) * 6,
+					},
+				}),
+				new Bomb({
+					canvas: { cWidth, cHeight },
+					velocity: {
+						x: Math.random() - 0.5 * 6,
+						y: Math.random() - 0.5 * 6,
+					},
+				}),
+			)
+		}
+
+		// Remove Bombs
+		for (let i = bombs.length - 1; i >= 0; i--) {
+			const bomb = bombs[i]
+			if (bomb.opacity <= 0) {
+				bombs.splice(i, 1)
+			}
+			bomb.update(c, cWidth, cHeight)
+		}
+
 		player.update(c)
 
-		particles.forEach((particle, idx) => {
-			// reuse background stars - those that reach the bottom of the canvas
-			// are place back in the top with a random x pos
-			if (particle.position.y - particle.radius >= canvas.height) {
-				particle.position.x = Math.random() * canvas.width
-				particle.position.y = -particle.radius
-			}
-			// remove particles to cleanup (for performance)
-			if (particle.opacity <= 0) {
-				setTimeout(() => {
-					particles.splice(idx, 1)
-				}, 0)
-			} else {
-				particle.update(c)
-			}
-		})
+		updateBGStars()
+
+		controls.handleKeyPress(canvas, player, game)
 
 		invaderProjectiles.forEach((invaderProjectile, index) => {
 			// remove invaders that go off screen
@@ -154,19 +215,30 @@ import { Sound } from './js/Sound.js'
 			}
 		})
 
-		controls.handleKeyPress(canvas, player, game)
+		// Remove projectile after it hits a bomb
+		for (let i = projectiles.length - 1; i >= 0; i--) {
+			const projectile = projectiles[i]
 
-		// remove projectiles
-		projectiles.forEach((projectile, index) => {
+			for (let j = bombs.length - 1; j >= 0; j--) {
+				const bomb = bombs[j]
+				//	if projectile hits bomb, remove it
+				if (
+					Math.hypot(projectile.position.x - bomb.position.x, projectile.position.y - bomb.position.y) < projectile.radius + bomb.radius &&
+					!bomb.active
+				) {
+					projectiles.splice(i, 1)
+					bomb.explode()
+				}
+			}
+
+			// remove projectiles
 			if (projectile.position.y + projectile.radius <= 0) {
-				setTimeout(() => {
-					projectiles.splice(index, 1)
-				}, 0)
+				projectiles.splice(i, 1)
 			} else {
 				// update projectile position
 				projectile.update(c)
 			}
-		})
+		}
 
 		// Updating enemy grids
 		grids.forEach((grid, gridIdx) => {
@@ -179,11 +251,37 @@ import { Sound } from './js/Sound.js'
 			}
 
 			// start grid loop
-			grid.invaders.forEach((invader, iIdx) => {
+			for (let i = grid.invaders.length - 1; i >= 0; i--) {
+				const invader = grid.invaders[i]
 				invader.update(c, { velocity: grid.velocity })
 
+				//	handleParticleHitsBomb(invader)
+
+				const invaderRadius = 15
+
+				for (let j = bombs.length - 1; j >= 0; j--) {
+					const bomb = bombs[j]
+					//	if bomb hits invaders, remove them
+					if (
+						Math.hypot(invader?.position?.x - bomb.position.x, invader?.position?.y - bomb.position.y) < invaderRadius + bomb.radius &&
+						bomb.active
+					) {
+						score += 50
+						scoreEl.innerHTML = score
+
+						grid.invaders.splice(i, 1)
+						createScoreLabel({ object: invader, score: 50 })
+
+						createParticles({
+							object: invader,
+							fades: true,
+						})
+						bomb.explode()
+					}
+				}
+
 				// projectiles hit enemy
-				projectiles.forEach((projectile, pIdx) => {
+				projectiles.forEach((projectile, j) => {
 					if (
 						projectile.position.y - projectile.radius <= invader.position.y + invader.height &&
 						projectile.position.x + projectile.radius >= invader.position.x &&
@@ -202,27 +300,7 @@ import { Sound } from './js/Sound.js'
 								scoreEl.innerText = score
 
 								// dynamic score labels
-								const scoreLabel = document.createElement('label')
-								scoreLabel.innerHTML = 100
-								scoreLabel.style.position = 'absolute'
-								scoreLabel.style.color = 'white'
-								// set score position to invader that was destroyed
-								scoreLabel.style.top = invader.position.y + 'px'
-								scoreLabel.style.left = invader.position.x + 'px'
-								scoreLabel.style.userSelect = 'none'
-
-								// add score
-								const gameBoard = document.querySelector('#game-board')
-								gameBoard.appendChild(scoreLabel)
-
-								gsap.to(scoreLabel, {
-									opacity: 0,
-									y: -30,
-									duration: 0.9,
-									onComplete: () => {
-										gameBoard.removeChild(scoreLabel)
-									},
-								})
+								createScoreLabel({ object: invader })
 
 								createParticles({
 									object: invader,
@@ -234,23 +312,24 @@ import { Sound } from './js/Sound.js'
 								invaderHitSound.volume(0.2)
 								invaderHitSound.play()
 
-								grid.invaders.splice(iIdx, 1)
-								projectiles.splice(pIdx, 1)
+								grid.invaders.splice(i, 1)
+								projectiles.splice(j, 1)
 
 								// update the grid width when invaders are removed, so back and forth movement matches with the grid width
 								if (grid.invaders.length > 0) {
 									const firstInvader = grid.invaders[0]
 									const lastInvader = grid.invaders[grid.invaders.length - 1]
+
 									grid.width = lastInvader.position.x - firstInvader.position.x + lastInvader.width
 									grid.position.x = firstInvader.position.x
 								} else {
-									grid.invaders.splice(gridIdx, 1)
+									grids.splice(gridIdx, 1)
 								}
 							}
 						}, 0)
 					}
 				})
-			})
+			}
 		})
 
 		// Spawing enemies
