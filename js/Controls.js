@@ -2,7 +2,7 @@ import Projectile from './Projectile.js'
 import { Sound } from './Sound.js'
 
 class Controls {
-	constructor(player, projectiles, game) {
+	constructor(player, game) {
 		this.playerShotSound = new Sound('./sound/playerShot.wav')
 		this.playerShotSound.volume(0.1)
 		this.keys = {
@@ -19,7 +19,6 @@ class Controls {
 
 		addEventListener('keydown', ({ key }) => {
 			if (game.over) return
-
 			switch (key) {
 				case 'a':
 					this.keys.a.pressed = true
@@ -29,21 +28,6 @@ class Controls {
 					break
 				case ' ':
 					this.keys.space.pressed = true
-					projectiles.push(
-						new Projectile({
-							position: {
-								x: player.position.x + player.width / 2,
-								y: player.position.y - 5,
-							},
-							velocity: {
-								x: 0,
-								y: -10,
-							},
-						}),
-					)
-					console.log('play shot sound')
-					this.playerShotSound.getDuration
-					this.playerShotSound.play()
 					break
 			}
 		})
@@ -63,6 +47,22 @@ class Controls {
 		})
 	}
 
+	createBullets(player, projectiles, color = 'yellow') {
+		projectiles.push(
+			new Projectile({
+				position: {
+					x: player.position.x + player.width / 2,
+					y: player.position.y - 5,
+				},
+				velocity: {
+					x: 0,
+					y: -10,
+				},
+				color,
+			}),
+		)
+	}
+
 	handleKeyPress(canvas, player) {
 		if (this.keys.a.pressed && player.position.x > 0) {
 			player.velocity.x = -12
@@ -73,6 +73,25 @@ class Controls {
 		} else {
 			player.velocity.x = 0
 			player.rotation = 0
+		}
+	}
+
+	selectGun(frames, player, projectiles) {
+		if (this.keys.space.pressed) {
+			switch (player.powerUp) {
+				case 'machineGun':
+					if (frames % 2 === 0) {
+						this.createBullets(player, projectiles, 'red')
+					}
+					break
+				default:
+					if (frames % 15 === 0) {
+						this.createBullets(player, projectiles)
+					}
+					break
+			}
+			this.playerShotSound.getDuration
+			this.playerShotSound.play()
 		}
 	}
 }

@@ -2,13 +2,16 @@ import Board from './js/Board.js'
 import Player from './js/Player.js'
 import Grid from './js/Grid.js'
 import Particle from './js/Particle.js'
+import PowerUp from './js/PowerUp.js'
+import UFO from './js/UFO.js'
+
 import Controls from './js/Controls.js'
 import { Sound } from './js/Sound.js'
 import Bomb from './js/Bomb.js'
-;(() => {
-	const canvas = document.querySelector('canvas')
-	const c = canvas.getContext('2d')
 
+const canvas = document.querySelector('canvas')
+const c = canvas.getContext('2d')
+;(() => {
 	const scoreEl = document.getElementById('scoreEl')
 
 	// canvas.width = innerWidth
@@ -37,10 +40,11 @@ import Bomb from './js/Bomb.js'
 	const player = new Player(canvas)
 	const grids = []
 	const projectiles = []
-	const controls = new Controls(player, projectiles, game)
+	const controls = new Controls(player, game)
 	const invaderProjectiles = []
 	const particles = []
 	const bombs = []
+	const powerUps = []
 
 	// addEventListener('resize', () => {
 	// 	player.redrawOnResize(canvas)
@@ -137,13 +141,31 @@ import Bomb from './js/Bomb.js'
 
 	createBGStars()
 
+	const ufo = new UFO({
+		position: {
+			x: 0,
+			y: 300,
+		},
+	})
+
 	function animate() {
 		if (!game.active) return
 		requestAnimationFrame(animate)
 		c.fillStyle = 'black'
 		c.fillRect(0, 0, canvas.width, canvas.height)
 
-		// Spawn bombc
+		PowerUp.remove(c, canvas, powerUps)
+
+		PowerUp.spawn(frames, powerUps)
+
+		ufo.update(c, cWidth, {
+			velocity: {
+				x: 2,
+				y: 0,
+			},
+		})
+
+		// Spawn bombs
 		if (frames % 200 === 0 && bombs.length < 3) {
 			bombs.push(
 				new Bomb({
@@ -176,7 +198,8 @@ import Bomb from './js/Bomb.js'
 
 		updateBGStars()
 
-		controls.handleKeyPress(canvas, player, game)
+		//TODO:
+		controls.handleKeyPress(canvas, player, projectiles)
 
 		invaderProjectiles.forEach((invaderProjectile, index) => {
 			// remove invaders that go off screen
@@ -215,7 +238,7 @@ import Bomb from './js/Bomb.js'
 			}
 		})
 
-		// Remove projectile after it hits a bomb
+		// REMOVE PROJECTILE after it hits a bomb
 		for (let i = projectiles.length - 1; i >= 0; i--) {
 			const projectile = projectiles[i]
 
@@ -230,6 +253,9 @@ import Bomb from './js/Bomb.js'
 					bomb.explode()
 				}
 			}
+
+			// Activate machine gun
+			PowerUp.activate(player, projectile, projectiles, powerUps, i)
 
 			// remove projectiles
 			if (projectile.position.y + projectile.radius <= 0) {
@@ -332,17 +358,16 @@ import Bomb from './js/Bomb.js'
 			}
 		})
 
-		// Spawing enemies
+		// Spawn invaders
 		if (frames % randomInterval === 0) {
 			// Divisible by 1000
 			grids.push(new Grid(canvas))
 			randomInterval = Math.floor(Math.random() * 150 + 100)
-			console.log(randomInterval)
-			frames = 0
 		}
+
+		controls.selectGun(frames, player, projectiles)
 
 		frames++
 	}
-
 	animate()
 })()

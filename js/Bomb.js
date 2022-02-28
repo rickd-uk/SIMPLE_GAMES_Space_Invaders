@@ -25,7 +25,7 @@ class Bomb {
 		this.velocity.x = 0
 		this.velocity.x = 0
 		gsap.to(this, {
-			radius: 200,
+			radius: 120,
 			color: 'white',
 		})
 		gsap.to(this, {

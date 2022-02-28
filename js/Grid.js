@@ -15,7 +15,6 @@ class Grid {
 
 		const cols = Math.floor(Math.random() * 5 + 3) //10 + 5     5 - 14
 		const rows = Math.floor(Math.random() * 3 + 1) // 5 + 2     2 - 6
-		console.log(rows, cols)
 
 		this.width = cols * 40
 
@@ -32,6 +31,7 @@ class Grid {
 			}
 		}
 	}
+
 	update(canvas) {
 		this.position.x += this.velocity.x
 		this.position.y += this.velocity.y
@@ -43,6 +43,11 @@ class Grid {
 			this.velocity.y = 75
 		}
 	}
+
+	// static spawnInvaders(grids) {
+	//
+
+	// }
 }
 
 export default Grid

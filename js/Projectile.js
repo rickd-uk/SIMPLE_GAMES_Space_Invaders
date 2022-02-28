@@ -1,15 +1,16 @@
 class Projectile {
-	constructor({ position, velocity }) {
+	constructor({ position, velocity, color = 'yellow' }) {
 		this.position = position
 		this.velocity = velocity
 
 		this.radius = 6
+		this.color = color
 	}
 
 	spawn() {}
 
 	draw(c) {
-		c.fillStyle = ' yellow'
+		c.fillStyle = this.color
 		c.beginPath()
 		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
 
