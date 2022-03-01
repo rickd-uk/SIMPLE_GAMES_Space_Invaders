@@ -1,5 +1,5 @@
 class Bomb {
-	static radius = 30
+	static radius = 20
 	constructor({ canvas, velocity }) {
 		this.radius = 0
 		this.position = {
@@ -7,12 +7,12 @@ class Bomb {
 			y: this.randomBetween(Bomb.radius, canvas.cHeight - Bomb.radius),
 		}
 		this.velocity = velocity
-		this.opacity = 1
+		this.opacity = 0.8
 		this.color = 'red'
 		this.active = false
 
 		gsap.to(this, {
-			radius: 30,
+			radius: 20,
 		})
 	}
 

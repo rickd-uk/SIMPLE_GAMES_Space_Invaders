@@ -1,4 +1,4 @@
-class Projectile {
+class Particle {
 	constructor({ position, velocity, radius, color, fades }) {
 		this.position = position
 		this.velocity = velocity
@@ -30,4 +30,4 @@ class Projectile {
 	}
 }
 
-export default Projectile
+export default Particle

@@ -5,6 +5,8 @@ import Particle from './js/Particle.js'
 import PowerUp from './js/PowerUp.js'
 import UFO from './js/UFO.js'
 
+import Background from './js/Background.js'
+
 import Controls from './js/Controls.js'
 import { Sound } from './js/Sound.js'
 import Bomb from './js/Bomb.js'
@@ -57,43 +59,9 @@ const c = canvas.getContext('2d')
 	let frames = 0
 	let randomInterval = Math.floor(Math.random() * 500 + 500)
 
-	function createBGStars() {
-		for (let i = 0; i < 100; i++) {
-			particles.push(
-				new Particle({
-					position: {
-						x: Math.random() * canvas.width,
-						y: Math.random() * canvas.height,
-					},
-					velocity: {
-						x: 0,
-						y: 0.2,
-					},
-					radius: 1,
-					color: 'white',
-				}),
-			)
-		}
-	}
+	const background = new Background(canvas)
 
-	function updateBGStars() {
-		particles.forEach((particle, idx) => {
-			// reuse background stars - those that reach the bottom of the canvas
-			// are place back in the top with a random x pos
-			if (particle.position.y - particle.radius >= canvas.height) {
-				particle.position.x = Math.random() * canvas.width
-				particle.position.y = -particle.radius
-			}
-			// remove particles to cleanup (for performance)
-			if (particle.opacity <= 0) {
-				setTimeout(() => {
-					particles.splice(idx, 1)
-				}, 0)
-			} else {
-				particle.update(c)
-			}
-		})
-	}
+	// background.createBGStars(canvas)
 
 	function createParticles({ object, fades, color = '#BAA0DE' }) {
 		for (let i = 0; i < 15; i++) {
@@ -138,8 +106,6 @@ const c = canvas.getContext('2d')
 			},
 		})
 	}
-
-	createBGStars()
 
 	const ufo = new UFO({
 		position: {
@@ -195,8 +161,6 @@ const c = canvas.getContext('2d')
 		}
 
 		player.update(c)
-
-		updateBGStars()
 
 		//TODO:
 		controls.handleKeyPress(canvas, player, projectiles)
@@ -365,7 +329,10 @@ const c = canvas.getContext('2d')
 			randomInterval = Math.floor(Math.random() * 150 + 100)
 		}
 
+		console.log(controls.keys.space.pressed)
 		controls.selectGun(frames, player, projectiles)
+
+		background.updateBGStars(canvas)
 
 		frames++
 	}
